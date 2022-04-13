@@ -7,6 +7,7 @@ from enum import auto
 from enum import Enum
 from pathlib import Path
 
+LOG_FILE = Path("temp_log")
 LINE_GROUPS = re.compile(r"^\[(?P<time>.+?)]\s(?P<log>.+?)$")
 DATETIME_PSTR = "%a %b %d %H:%M:%S %Y"
 COMBAT_ACTION = re.compile(
@@ -108,9 +109,7 @@ def split_log(line: str) -> tuple[datetime, str]:
 
 
 if __name__ == "__main__":
-    log = Path("log.log")
-
-    with log.open() as infile:
+    with LOG_FILE.open() as infile:
         for idx, line in enumerate(infile):
             if not (combat_match := LINE_GROUPS.match(line)):
                 continue
@@ -118,6 +117,3 @@ if __name__ == "__main__":
             game_text = combat_match.group(2)
 
             print(build_model(game_text))
-
-            if idx > 100:
-                break
