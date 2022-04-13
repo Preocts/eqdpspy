@@ -42,10 +42,10 @@ class InvalidLine(ValueError):
 class CombatType(Enum):
     """Enum for combat types."""
 
-    UNKNOWN = auto
-    COMBAT = auto
-    COMBAT_DS = auto
-    DAMAGE = auto
+    UNKNOWN = auto()
+    COMBAT = auto()
+    COMBAT_DS = auto()
+    DAMAGE = auto()
 
 
 @dataclass
