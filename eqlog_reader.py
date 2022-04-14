@@ -125,3 +125,5 @@ if __name__ == "__main__":
     print(dataset)
     print(dataset[dataset["combat_type"].isin([CombatType.COMBAT])])
     print(dataset[dataset["combat_type"].isin([CombatType.COMBAT_DS])])
+
+    dataset.to_csv(Path("temp_csv").open("w"))
