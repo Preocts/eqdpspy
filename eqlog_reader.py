@@ -1,11 +1,12 @@
 # import numpy
-# import pandas
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import auto
 from enum import Enum
 from pathlib import Path
+
+import pandas
 
 LOG_FILE = Path("temp_log")
 LINE_GROUPS = re.compile(r"^\[(?P<time>.+?)]\s(?P<log>.+?)$")
@@ -52,6 +53,7 @@ class CombatType(Enum):
 class CombatModel:
     """Parsed data from combat log."""
 
+    time_stamp: datetime = datetime.now()
     combat_type: CombatType = CombatType.UNKNOWN
     who: str = ""
     verb: str = ""
@@ -61,9 +63,9 @@ class CombatModel:
     hitby: str = ""
 
 
-def build_model(line: str) -> CombatModel:
+def build_model(time: datetime, line: str) -> CombatModel:
     """Build a CombatModel from a log line."""
-    model = CombatModel()
+    model = CombatModel(time_stamp=time)
     combat_match = COMBAT_ACTION.match(line)
     ds_match = DAMAGE_SHIELD.match(line)
     melee_damage = MELEE_DAMAGE.match(line)
@@ -78,7 +80,7 @@ def build_model(line: str) -> CombatModel:
         model.target = combat_match.group(3)
         model.amount = int(combat_match.group(4))
         model.skills = skills.group(1) if skills else ""
-        model.hitby = hitby.group(1) if hitby else "weapon"
+        model.hitby = hitby.group(1) if hitby else "melee"
 
     if ds_match:
         model.combat_type = CombatType.COMBAT_DS
@@ -109,11 +111,17 @@ def split_log(line: str) -> tuple[datetime, str]:
 
 
 if __name__ == "__main__":
+    models: list[CombatModel] = []
+
     with LOG_FILE.open() as infile:
         for idx, line in enumerate(infile):
             if not (combat_match := LINE_GROUPS.match(line)):
                 continue
             timestamp = datetime.strptime(combat_match.group(1), DATETIME_PSTR)
             game_text = combat_match.group(2)
+            models.append(build_model(timestamp, game_text))
 
-            print(build_model(game_text))
+    dataset = pandas.DataFrame(models)
+    print(dataset)
+    print(dataset[dataset["combat_type"].isin([CombatType.COMBAT])])
+    print(dataset[dataset["combat_type"].isin([CombatType.COMBAT_DS])])
