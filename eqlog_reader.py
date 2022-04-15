@@ -28,7 +28,7 @@ MELEE_DAMAGE = re.compile(
     flags=re.IGNORECASE,
 )
 DAMAGE_SHIELD = re.compile(
-    pattern="^a(?P<target>.+) is.+ YOUR (?P<hitby>.+) for (?P<amount>[0-9]+)",
+    pattern="^(?P<target>.+?) is (?P<verb>.+?) by YOUR (?P<hitby>.+?) for (?P<amount>[0-9]+) points.+$",  # noqa
     flags=re.IGNORECASE,
 )
 
@@ -86,8 +86,9 @@ def build_model(time: datetime, line: str) -> CombatModel:
         model.combat_type = CombatType.COMBAT_DS
         model.who = "You"
         model.target = ds_match.group(1)
-        model.hitby = ds_match.group(2)
-        model.amount = int(ds_match.group(3))
+        model.verb = ds_match.group(2)
+        model.hitby = ds_match.group(3)
+        model.amount = int(ds_match.group(4))
 
     if melee_damage:
         model.combat_type = CombatType.DAMAGE
