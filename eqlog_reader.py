@@ -1,5 +1,6 @@
 # import numpy
 import re
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from enum import auto
@@ -112,6 +113,8 @@ def split_log(line: str) -> tuple[datetime, str]:
 
 
 if __name__ == "__main__":
+    tic = time.perf_counter()
+
     models: list[CombatModel] = []
 
     with LOG_FILE.open() as infile:
@@ -128,3 +131,6 @@ if __name__ == "__main__":
     print(dataset[dataset["combat_type"].isin([CombatType.COMBAT_DS])])
 
     dataset.to_csv(Path("temp_csv").open("w"))
+
+    toc = time.perf_counter()
+    print("runtime:", toc - tic)
