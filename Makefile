@@ -3,6 +3,7 @@ init:
 	pip install --upgrade pip setuptools wheel pip-tools
 
 .PHONY: dependencies
+dependencies:
 	pip install -r requirements.txt
 
 .PHONY: dependencies-dev
@@ -12,7 +13,7 @@ dev-install:
 
 .PHONY: update
 update:
-	pip-compile --upgrade --output-file requirements.txt requirements.in
+	pip-compile --upgrade
 	pip install --upgrade -r requirements.txt
 	pip install --upgrade -r requirements-dev.txt
 	pre-commit autoupdate
