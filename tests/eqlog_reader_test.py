@@ -27,7 +27,6 @@ def test_build_model_combat_with_skills() -> None:
     expected = {
         "time_stamp": expected_ts,
         "combat_type": eqlog_reader.CombatType.COMBAT,
-        "who": "You",
         "verb": "hit",
         "target": "a defender of fire",
         "amount": 1110,
@@ -47,7 +46,6 @@ def test_build_model_combat_no_skill() -> None:
     expected = {
         "time_stamp": expected_ts,
         "combat_type": eqlog_reader.CombatType.COMBAT,
-        "who": "You",
         "verb": "hit",
         "target": "a defender of fire",
         "amount": 1110,
@@ -69,7 +67,6 @@ def test_build_model_damage_shield() -> None:
     expected = {
         "time_stamp": expected_ts,
         "combat_type": eqlog_reader.CombatType.COMBAT_DS,
-        "who": "You",
         "verb": "pierced",
         "target": "Halon of Marr",
         "amount": 60,
@@ -89,7 +86,6 @@ def test_ignore_heals() -> None:
     expected = {
         "time_stamp": expected_ts,
         "combat_type": eqlog_reader.CombatType.UNKNOWN,
-        "who": "You",
         "verb": "",
         "target": "",
         "amount": 0,

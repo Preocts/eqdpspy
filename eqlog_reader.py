@@ -56,7 +56,6 @@ class CombatModel:
 
     time_stamp: datetime = datetime.now()
     combat_type: CombatType = CombatType.UNKNOWN
-    who: str = "You"
     verb: str = ""
     target: str = ""
     amount: int = 0
