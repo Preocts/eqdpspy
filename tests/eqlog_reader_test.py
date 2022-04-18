@@ -81,3 +81,23 @@ def test_build_model_damage_shield() -> None:
 
     for key, value in expected.items():
         assert getattr(result, key) == value, f"{key} - {value}"
+
+
+def test_ignore_heals() -> None:
+    case = "You have been healed for 273 hit points by Aura of Rodcet Effect Rk.III."  # noqa
+    expected_ts = datetime(2022, 4, 12, 13, 9, 4)
+    expected = {
+        "time_stamp": expected_ts,
+        "combat_type": eqlog_reader.CombatType.UNKNOWN,
+        "who": "You",
+        "verb": "",
+        "target": "",
+        "amount": 0,
+        "skills": "",
+        "hitby": "",
+    }
+
+    result = eqlog_reader.build_model(expected_ts, case)
+
+    for key, value in expected.items():
+        assert getattr(result, key) == value, f"{key} - {value}"

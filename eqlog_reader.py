@@ -13,7 +13,7 @@ LOG_FILE = Path("temp_log")
 LINE_GROUPS = re.compile(r"^\[(?P<time>.+?)]\s(?P<log>.+?)$")
 DATETIME_PSTR = "%a %b %d %H:%M:%S %Y"
 COMBAT_ACTION = re.compile(
-    pattern=r"^(?P<who>\w+?) (?P<verb>\w+?) (?P<target>.+?) for (?P<amount>[0-9]+).+$",
+    pattern=r"^You (?P<verb>\w+?) (?P<target>.+?) for (?P<amount>[0-9]+).+$",
     flags=re.IGNORECASE,
 )
 HIT_SOURCE = re.compile(
@@ -56,7 +56,7 @@ class CombatModel:
 
     time_stamp: datetime = datetime.now()
     combat_type: CombatType = CombatType.UNKNOWN
-    who: str = ""
+    who: str = "You"
     verb: str = ""
     target: str = ""
     amount: int = 0
@@ -66,26 +66,25 @@ class CombatModel:
 
 def build_model(time: datetime, line: str) -> CombatModel:
     """Build a CombatModel from a log line."""
+    skip_targets = ["been healed"]
     model = CombatModel(time_stamp=time)
     combat_match = COMBAT_ACTION.match(line)
     ds_match = DAMAGE_SHIELD.match(line)
     melee_damage = MELEE_DAMAGE.match(line)
 
-    if combat_match:
+    if combat_match and combat_match.group(2) not in skip_targets:
         hitby = HIT_SOURCE.search(line)
         skills = COMBAT_SKILL.search(line)
 
         model.combat_type = CombatType.COMBAT
-        model.who = combat_match.group(1)
-        model.verb = combat_match.group(2)
-        model.target = combat_match.group(3)
-        model.amount = int(combat_match.group(4))
+        model.verb = combat_match.group(1)
+        model.target = combat_match.group(2)
+        model.amount = int(combat_match.group(3))
         model.skills = skills.group(1) if skills else ""
         model.hitby = hitby.group(1) if hitby else "melee"
 
     if ds_match:
         model.combat_type = CombatType.COMBAT_DS
-        model.who = "You"
         model.target = ds_match.group(1)
         model.verb = ds_match.group(2)
         model.hitby = ds_match.group(3)
@@ -93,7 +92,6 @@ def build_model(time: datetime, line: str) -> CombatModel:
 
     if melee_damage:
         model.combat_type = CombatType.DAMAGE
-        model.who = "You"
         model.target = melee_damage.group(1)
         model.amount = int(melee_damage.group(2))
 
@@ -126,9 +124,13 @@ if __name__ == "__main__":
             models.append(build_model(timestamp, game_text))
 
     dataset = pandas.DataFrame(models)
-    print(dataset)
-    print(dataset[dataset["combat_type"].isin([CombatType.COMBAT])])
-    print(dataset[dataset["combat_type"].isin([CombatType.COMBAT_DS])])
+    print(len(dataset))
+    # print(dataset[dataset["combat_type"].isin([CombatType.COMBAT])])
+    # print(dataset[dataset["combat_type"].isin([CombatType.COMBAT_DS])])
+    # print(dataset.describe())
+    print(dataset[dataset["verb"].isin(["have"])])
+    print([x for x in CombatType])
+    print(dataset.verb.unique())
 
     dataset.to_csv(Path("temp_csv").open("w"))
 
